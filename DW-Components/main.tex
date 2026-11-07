@@ -1,0 +1,244 @@
+% Standalone document. Compile main.tex with pdfLaTeX or XeLaTeX.
+\documentclass[12pt,a4paper]{article}
+\usepackage[margin=1in,headheight=15pt]{geometry}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Data Warehouses}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\setlist[itemize,enumerate]{topsep=4pt,itemsep=3pt,parsep=0pt}
+\raggedbottom
+\setlength{\emergencystretch}{1.5em}
+\newcommand{\slides}[1]{\textit{\small #1}\par}
+\newcommand{\rowgap}{\\[4pt]}
+\title{Data Warehousing Components\\{\large Chapter 2 (Slides 1--23)}}
+\author{0xSaad / Saad Almalki}
+\date{November 7, 2026}
+\begin{document}
+\maketitle
+\thispagestyle{plain}
+\section{From Transactions to Decisions}
+\slides{Slides 1--3}
+A sales application records what a customer bought today. A manager asking how that customer's purchases have changed over the past year needs a history that can be read across applications. This chapter explains how a data warehouse (DW) serves that second purpose.
+
+\subsection{Learning Objectives}
+\begin{itemize}
+\item Define a data warehouse and distinguish an operational system from an informational system.
+\item Identify the qualities that make strategic information useful and explain the four characteristics of warehouse data.
+\item Trace data from operational sources through transformation to analysis.
+\item Distinguish an enterprise warehouse from a data mart and compare the top-down and bottom-up approaches to building them.
+\end{itemize}
+
+\subsection{Data Warehousing Milestones}
+The chronology below follows the dates given on slide 3.
+\begin{center}\small
+\begin{tabular}{@{}p{0.10\linewidth}p{0.84\linewidth}@{}}
+\hline
+\textbf{Year} & \textbf{Development}\\ \hline
+1983 & Teradata offered a database management system for decision support.\\
+1988 & Barry Devlin and Paul Murphy described an architecture for business and information systems in the \textit{IBM Systems Journal}.\\
+1990 & Red Brick Systems offered a data warehousing system.\\
+1991 & Bill Inmon, called the father of data warehousing in the lecture, is associated with \textit{Building the Data Warehouse}.\\
+1991 & Prism Solutions offered software for developing warehouses.\\
+1995 & The Data Warehousing Institute focused on warehousing and business intelligence (BI).\\
+1996 & Ralph Kimball's \textit{The Data Warehouse Toolkit} appeared.\\
+1997 & Oracle 8 added support for star-schema queries.\\ \hline
+\end{tabular}
+\end{center}
+
+\newpage
+\section{Definitions and Warehouse Characteristics}
+\slides{Slides 4--8}
+\subsection{Three Definitions of a Data Warehouse}
+\begin{itemize}
+\item \textbf{Barry Devlin emphasizes the user's view.} Multiple sources contribute to one complete, consistent store. End users must be able to interpret the data in business terms. For example, a manager should be able to ask for a product's total sales without knowing each source system's product code.
+\item \textbf{Ralph Kimball emphasizes the analytical workload.} The warehouse holds a copy of transactional data organized specifically for querying and analysis. Copying the records is only part of the work; their structure must also suit the questions people ask.
+\item \textbf{W.\ H.\ Inmon emphasizes the data itself.} He describes a collection used primarily for organizational decisions through four characteristics: subject orientation, integration, time variance, and non-volatility.
+\end{itemize}
+The lecture describes the warehouse as a decision-support database maintained separately from operational databases. An analyst can examine years of purchases while the operational system continues to record new orders.
+
+\subsection{Subject-Oriented Data}
+\begin{itemize}
+\item A subject is a business entity or topic people want to study, such as a customer. A single subject may draw on several applications.
+\item Slide 7 groups \textbf{equity plans, shares, insurance, loans, and savings} under the subject \textbf{customer financial information}. Each application serves its own process. Together, the records help answer a question none can answer alone: which financial products does this customer hold?
+\end{itemize}
+
+\subsection{Integrated Data}
+\begin{itemize}
+\item Heterogeneous source systems can represent the same item in different ways. Integration reconciles those differences so the warehouse uses a common meaning and, where appropriate, a common code.
+\item \textbf{Worked example.} Suppose sales calls a product P17 and inventory calls the same product 0042. Mapping both to one warehouse product code lets an analyst compare its sales and stock. Keeping the two codes as separate products would split the totals.
+\end{itemize}
+
+\newpage
+\section{History and Change}
+\slides{Slides 9--11}
+\subsection{Time-Variant Data}
+\begin{itemize}
+\item An accounts receivable system typically shows a customer's \textbf{current outstanding balance}. That value answers what the customer owes now. By itself, it cannot show how the balance changed.
+\item To study a customer's buying pattern, an analyst needs past purchases as well as the current purchase. Each warehouse observation must relate to a time. A sales quantity might represent a day, week, month, or quarter, depending on the level of detail stored.
+\item \textbf{Grain} describes what one row represents. If a row records units sold per product per month, monthly totals can be combined into a quarter. A monthly total alone cannot reveal sales on a particular day.
+\item Time-linked observations support three tasks: analyze what happened in the past, relate it to present conditions, and use the pattern to forecast future activity.
+\end{itemize}
+
+\subsection{Non-Volatile Data}
+\begin{itemize}
+\item Operational applications read, add, change, or delete records as transactions happen. A payment, for example, immediately changes the balance shown to the accounts clerk.
+\item Data enters the warehouse through \textbf{loads}. Once a historical observation has been captured and committed, ordinary business transactions do not continually overwrite or delete it. Decision-support applications primarily read the stored data.
+\item A later load can add another observation. A June balance of 500 and a July balance of 350 can both remain available. The dates make the observations \textbf{time-variant}; retaining June's value after July arrives illustrates \textbf{non-volatility}.
+\end{itemize}
+
+\subsection{Two Workloads in the Slide 11 Diagram}
+\begin{center}\small
+\begin{tabular}{@{}p{0.25\linewidth}p{0.67\linewidth}@{}}
+\hline
+\textbf{System} & \textbf{Typical action}\\ \hline
+Operational (OLTP) & Applications read current records and add, change, or delete data as part of a transaction.\rowgap
+Warehouse & A load brings source data into the warehouse. Decision-support systems read the stored observations for queries and analysis.\\ \hline
+\end{tabular}
+\end{center}
+OLTP means \textit{online transaction processing}. The difference is visible in a single payment: the clerk needs the balance to change now, while an analyst may need the balance as it stood before the payment.
+
+\newpage
+\section{Strategic Information and Warehouse Architecture}
+\slides{Slides 12--14}
+\subsection{Five Qualities of Strategic Information}
+\begin{center}\small
+\begin{tabular}{@{}p{0.20\linewidth}p{0.72\linewidth}@{}}\hline
+\textbf{Quality} & \textbf{Meaning in a business decision}\\ \hline
+Integrated & Data gives one enterprise-wide view across departments.\rowgap
+Data integrity & Values are accurate and conform to business rules.\rowgap
+Accessible & Users can find data through intuitive access paths and receive a response quickly enough to explore it.\rowgap
+Credible & A business factor has one authoritative value for the same definition, scope, and period.\rowgap
+Timely & Information arrives within the time frame set for the decision.\\ \hline
+\end{tabular}
+\end{center}
+For example, a correct sales report delivered after a purchasing deadline has integrity but fails the timeliness requirement.
+
+\subsection{What an Informational System Provides}
+\begin{itemize}
+\item An integrated view of the enterprise, with current and historical information readily available for strategic decisions.
+\item Consistent information that users can explore interactively. A manager can start with annual sales and then ask which products account for a change.
+\item Decision-support queries that can run without hindering the operational systems where employees record day-to-day transactions.
+\end{itemize}
+
+\subsection{Reading the Architecture Diagram}
+\begin{center}\small
+\fbox{Operational data}\ $\longrightarrow$\ \fbox{Transformation}\ $\longrightarrow$\ \fbox{Warehouse}\ $\longrightarrow$\ \fbox{Users}
+\end{center}
+\begin{enumerate}
+\item \textbf{Operational systems} capture data from basic business processes.
+\item \textbf{Transformation} includes extraction, cleansing, and aggregation. For example, a load can reconcile product codes and calculate monthly units sold.
+\item \textbf{The warehouse} organizes measurements, such as units sold, by business dimensions, such as product and time. Executives, managers, and analysts use these data to answer strategic questions.
+\end{enumerate}
+Slide 14 also identifies the supporting technologies: data modeling, acquisition, quality, data management, and metadata management; analysis, applications, administration, development tools, and storage management. Metadata can record what a measure means and where it came from.
+
+\newpage
+\section{Enterprise Warehouses and Data Marts}
+\slides{Slides 15--17}
+A \textbf{data mart} serves the analytical needs of a department, subject, or business process. A sales mart, for example, might show units and revenue by product, date, and store. An enterprise warehouse supports questions spanning several processes, such as whether shortages in inventory explain a fall in sales.
+
+\subsection{Warehouse and Mart Compared}
+\begin{center}\small
+\begin{tabular}{@{}p{0.16\linewidth}p{0.36\linewidth}p{0.38\linewidth}@{}}\hline
+ & \textbf{Data warehouse} & \textbf{Data mart}\\ \hline
+Scope & Corporate view covering multiple subjects or processes. & Departmental view, often centered on one business process.\rowgap
+Data flow & Receives prepared data from a staging area; exposed data can be queried through a presentation resource. & Provides data organized for the department's access and analysis needs.\rowgap
+Structure & Slide 17 illustrates an enterprise structure organized using an entity--relationship (E--R) model. & A star join connects a fact table containing measurements to dimension tables describing their context.\rowgap
+Relationship & In the bottom-up approach, the enterprise view spans the collection of conformed marts. & A mart can draw from an enterprise warehouse or directly from source systems.\\ \hline
+\end{tabular}
+\end{center}
+
+\subsection{Dependent and Independent Marts}
+\begin{itemize}
+\item A \textbf{dependent mart} receives data from the enterprise warehouse. The warehouse has already reconciled definitions before the mart presents a departmental view.
+\item An \textbf{independent mart} draws on source systems without depending on a central warehouse. Local delivery can be quick, but independently chosen definitions may make cross-department comparisons unreliable.
+\item \textbf{Conformance} addresses a different question: do marts use compatible dimensions? Marts built in stages can still share definitions from the outset. A set of isolated marts does not automatically form a coherent enterprise view.
+\end{itemize}
+
+\subsection{Decisions Before Building}
+Decide whether the initial scope is enterprise-wide or departmental, which to build first (a warehouse or a mart), and where each mart will obtain its data. These choices determine whether integration happens in a central store first or through coordinated marts as they are delivered.
+
+\newpage
+\section{The Top-Down Approach}
+\slides{Slides 16 and 18--20 \quad|\quad Bill Inmon}
+\subsection{Build the Enterprise Foundation First}
+\begin{center}\small
+\fbox{Operational sources}\ $\longrightarrow$\ \fbox{Enterprise warehouse}\ $\longrightarrow$\ \fbox{Dependent marts}
+\end{center}
+\begin{enumerate}
+\item Extract data from operational systems. Transform, clean, and integrate it using enterprise definitions before storing it in a central warehouse.
+\item Store data at the \textbf{lowest level of granularity} available for the design. For sales, an individual sale line preserves more detail than a monthly total and can later support several kinds of summary.
+\item Use a \textbf{normalized data model} in the central repository. For example, a product's descriptive information can be maintained in one place and referenced by many sales records.
+\item Feed \textbf{dependent data marts} from the warehouse. A mart can use a dimensional model to make a department's reporting easier, even though the central repository uses a normalized model.
+\end{enumerate}
+Inmon puts the warehouse at the center of the \textbf{Corporate Information Factory (CIF)}, a framework for delivering business intelligence across the enterprise. Business operations supply the data that drives the CIF.
+
+\subsection{Advantages}
+\begin{itemize}
+\item A planned corporate architecture gives the organization an integrated view across departments and avoids fragmented stores of information.
+\item Central storage provides one place to maintain enterprise data and information about its contents. Common rules and controls apply before dependent marts receive data.
+\item An iterative rollout can demonstrate results before the entire warehouse is complete.
+\end{itemize}
+
+\subsection{Disadvantages}
+\begin{itemize}
+\item The enterprise foundation takes time to build, even with iterations. Sponsors may have to wait for the first usable reports.
+\item The large scope increases exposure to project failure and requires experienced professionals. Delayed results and staffing demands can make it difficult to win support from senior management and sponsors.
+\end{itemize}
+
+\newpage
+\section{The Bottom-Up Approach}
+\slides{Slides 16 and 21--22 \quad|\quad Ralph Kimball}
+\subsection{Build Prioritized, Conformed Marts}
+\begin{enumerate}
+\item Choose a priority business process or subject and build its mart first. The first mart provides analytical and reporting capabilities while later marts are developed.
+\item Use a \textbf{dimensional model}. Facts record measurements, and dimensions identify the business context. A sales fact might record a quantity with links to the product, store, and date.
+\item Keep the lowest level of detail required for analysis and add summaries where useful. A mart can hold sale lines and monthly totals. The design does not require every table to be normalized.
+\item \textbf{Conform dimensions across marts.} Agree on shared definitions, values, and groupings so facts from different processes can be compared. Kimball's enterprise warehouse is the collection of these coordinated marts.
+\end{enumerate}
+
+\subsection{Why Shared Dimensions Matter}
+Suppose the sales mart records units sold by product and day, and an inventory mart records stock on hand by product and day. If both use the same product definitions and calendar, an analyst can compare daily sales with closing stock for the same product. If one mart defines a product as a single item and the other as a pack, matching their labels gives a misleading comparison.
+
+\subsection{Advantages}
+\begin{itemize}
+\item Smaller pieces are faster and easier to implement. A working first mart provides proof of concept and can deliver an earlier return on investment.
+\item A limited initial scope reduces the risk of failure. The team can learn from the first implementation and apply that experience to the next mart.
+\end{itemize}
+
+\subsection{Disadvantages}
+\begin{itemize}
+\item Each mart has a narrow view, and storing similar data in multiple marts can introduce redundancy.
+\item \textbf{Fragmentation is the major risk.} Teams building independent marts may overlook enterprise requirements. Decide which marts come first, and coordinate dimensions before local choices make later integration difficult.
+\end{itemize}
+
+\newpage
+\section{Choosing an Approach}
+\slides{Slides 18--23}
+\subsection{Inmon and Kimball Side by Side}
+\begin{center}\small
+\begin{tabular}{@{}p{0.17\linewidth}p{0.36\linewidth}p{0.37\linewidth}@{}}\hline
+ & \textbf{Inmon: top-down} & \textbf{Kimball: bottom-up}\\ \hline
+First delivery & Enterprise warehouse foundation, followed by dependent marts. & A priority process mart, followed by further conformed marts.\rowgap
+Integration & Reconcile sources in the central enterprise repository. & Coordinate shared dimensions across dimensional marts.\rowgap
+Model and grain & Normalized central detail; dependent marts may be dimensional. & Dimensional marts with detailed facts and summaries as needed.\rowgap
+Benefit & Central rules, control, and a consistent corporate view. & Quicker departmental results and an early proof of concept.\rowgap
+Main exposure & Long lead time, high project risk, and a need for expertise and sponsor support. & Narrow local views, redundant data, and fragmentation when marts are developed in isolation.\\ \hline
+\end{tabular}
+\end{center}
+
+\subsection{Apply the Choice to a Business Problem}
+\begin{itemize}
+\item \textbf{Enterprise priority.} A financial group needs one customer view across loans, savings, and insurance. If it can fund the integration work and has the expertise, an Inmon-style warehouse gives all three marts the same customer foundation.
+\item \textbf{Immediate subject priority.} A retailer needs sales reports this term and inventory analysis later. A Kimball-style sales mart can address the first need. Agreeing on product and date dimensions now makes the later comparison possible.
+\item \textbf{Proof of concept.} Slide 23 asks whether a quick implementation is meant to be discarded or to become part of a long-term system. A disposable pilot can test demand. A first mart intended for reuse needs dimensions that future marts can share.
+\end{itemize}
+The choice depends on what the organization needs first, how long sponsors can wait, and how it will achieve consistent information across subjects. Both approaches require an explicit plan for integration.
+
+\begin{flushright}\textit{Created by: Saad Almalki}\end{flushright}
+\end{document}
