@@ -1,0 +1,149 @@
+\documentclass[12pt]{article}
+
+\usepackage{geometry}   % To control page margins
+\usepackage{fancyhdr}   % To customize the header and footer
+\usepackage{enumitem}   % For better lists
+\usepackage{setspace}   % For line spacing
+\usepackage{parskip}    % For better paragraph spacing
+\usepackage{graphicx}  % Inserting images
+
+\geometry{a4paper, margin=1in}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Data Warehouses}
+\fancyfoot[C]{\thepage}
+
+\title{Overview of Data Warehousing\\\large Part 4 to the End (Slides 14--24)}
+\author{0xSaad / Saad Almalki}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Why OLAP and OLTP Don't Mix}
+
+OLTP and OLAP are often separated because they have \textbf{different performance requirements}, \textbf{different data modeling requirements}, and \textbf{different data sources}.
+
+\subsection{Different Performance Requirements}
+
+\textbf{OLTP:}
+\begin{itemize}
+    \item Fast response time is important (less than 1 second in the lecture's example).
+    \item Data must be up-to-date and consistent at all times.
+\end{itemize}
+
+\textbf{OLAP:}
+\begin{itemize}
+    \item Complex queries may consume many resources.
+    \item Queries can saturate CPU and disk bandwidth.
+    \item A static snapshot of data is usually acceptable.
+\end{itemize}
+
+\subsection{Different Data Modeling Requirements}
+
+\textbf{OLTP:}
+\begin{itemize}
+    \item Uses \textbf{normalized schemas} for consistency.
+    \item Often has complex data models and many tables.
+    \item Uses a limited number of standardized queries and updates.
+\end{itemize}
+\textbf{OLAP:}
+\begin{itemize}
+    \item Simplicity of the data model is important.
+    \item \textbf{Denormalized schemas} are common.
+    \item Fewer joins can improve query performance.
+    \item Fewer tables make the schema easier to understand.
+\end{itemize}
+
+\subsection{Analysis Requires Many Data Sources}
+\begin{itemize}
+    \item OLTP usually focuses on one specific process (e.g., online orders).
+    \item OLAP integrates data from different processes (e.g., sales, inventory, and purchasing).
+    \item OLAP often uses \textbf{historical data} to find long-term patterns and changes in behavior.
+    \item Different terminology and schemas make data integration challenging.
+\end{itemize}
+\section{Data Warehouse as a Solution}
+
+Using OLTP and OLAP in the same database system is often impractical. The solution is to build a \textbf{Data Warehouse}.
+
+\begin{enumerate}
+    \item Copy data from various OLTP systems.
+    \item Optimize data organization and system tuning for OLAP.
+    \item Prevent large analysis queries from slowing daily transactions.
+    \item Periodically refresh the warehouse data.
+\end{enumerate}
+
+\section{The Warehousing Approach}
+
+In this approach, information is \textbf{integrated in advance} and stored in a warehouse for direct querying and analysis.
+
+\subsection{Main Architecture Components}
+
+\begin{enumerate}
+    \item \textbf{Sources:} Original systems containing the data.
+    \item \textbf{Extractors/Monitors:} Extract data and monitor the sources.
+    \item \textbf{Integration System:} Integrates data from different sources.
+    \item \textbf{Metadata:} Descriptive information used by the integration system.
+    \item \textbf{Data Warehouse:} Stores integrated information.
+    \item \textbf{Clients:} Query and analyze the information.
+\end{enumerate}
+
+\textbf{Basic flow:} Sources $\rightarrow$ Extractors/Monitors $\rightarrow$ Integration System $\rightarrow$ Data Warehouse $\rightarrow$ Clients.
+
+\subsection{Advantages}
+
+\begin{enumerate}
+    \item \textbf{High query performance}, but the information is not necessarily the most current.
+    \item Complex queries at the warehouse do not interfere with local OLTP processing.
+    \item Copied information can be modified, annotated, summarized, restructured, and stored historically.
+\end{enumerate}
+
+\section{Need for Data Warehousing}
+
+Companies have gathered huge volumes of data over the years. Data warehousing helps them analyze this data and use it to gain a \textbf{competitive advantage}.
+
+\section{Benefits of Data Warehousing}
+
+\begin{enumerate}
+    \item More efficient analysis of data.
+    \item Competitive advantage.
+    \item Support for strategic decision making.
+    \item Increased productivity of decision makers.
+\end{enumerate}
+
+\section{Decision Support Systems (DSS), DW and OLAP}
+
+\textbf{DSS (Decision Support System):} Information technology that helps executives, managers, and analysts make faster and better decisions.
+
+\begin{itemize}
+    \item DSS provides current and historical information for decision support.
+    \item The lecture describes a \textbf{Data Warehouse} as a Decision Support System.
+    \item \textbf{OLAP} is an element of DSS used for analytical processing.
+\end{itemize}
+\section{Data Warehouse Characteristics}
+
+\begin{enumerate}
+    \item Analysis-driven.
+    \item Supports ad-hoc queries.
+    \item Supports complex queries.
+    \item Used by top managers.
+    \item Based on dimensional modeling.
+    \item Uses denormalized structures.
+\end{enumerate}
+\section{Data Warehousing Applications}
+\begin{itemize}
+    \item \textbf{Retail:} Customer loyalty and market planning.
+    \item \textbf{Financial:} Risk management and fraud detection.
+    \item \textbf{Airlines:} Route profitability and yield management.
+    \item \textbf{Manufacturing:} Cost reduction and logistics management.
+    \item \textbf{Utilities:} Asset management and resource management.
+    \item \textbf{Government:} Manpower planning and cost control.
+\end{itemize}
+
+\begin{flushright}
+Created by: Saad Almalki \\
+\end{flushright}
+
+\end{document}
